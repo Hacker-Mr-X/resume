@@ -1351,6 +1351,20 @@ const Admin: React.FC = () => {
                         ])}
                       </div>
                     </div>
+
+                    <div className="pt-4 mt-6 border-t border-slate-200 dark:border-slate-800">
+                      <h4 className="text-xs font-extrabold text-slate-500 mb-4 flex items-center gap-1">
+                        <Sparkles className="w-4 h-4 text-amber-500" /> 视觉特效配置 / Visual Effects
+                      </h4>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        <div>
+                          {renderToggle(['settings', 'enableLightRays'], '启用首屏顶部体积光射线 (LightRays)')}
+                          <p className="text-xs text-slate-400 mt-2 px-1">
+                            在首页欢迎屏的顶部增加一层炫酷的交互式光线特效。开启可能会影响部分低端设备的性能，默认关闭。
+                          </p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

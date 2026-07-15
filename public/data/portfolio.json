@@ -2,7 +2,8 @@
   "defaultLanguage": "en",
   "settings": {
     "cardSound": "click",
-    "sectionSound": "clock"
+    "sectionSound": "clock",
+    "tailStyle": "lanyard"
   },
   "hero": {
     "name": {

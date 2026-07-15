@@ -1,9 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useTransition } from 'react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { useTickSound, SoundType } from '../components/useTickSound';
+import BorderGlow from '../components/BorderGlow';
+import Silk from '../components/Silk';
+// import SideRays from '../components/SideRays';
+import CircularGallery from '../components/CircularGallery';
+import PrismaticBurst from '../components/PrismaticBurst';
+import BlurText from '../components/BlurText';
+import LightRays from '../components/LightRays';
+import Stack from '../components/Stack';
+import Grainient from '../components/Grainient';
+import ShinyText from '../components/ShinyText';
+import SpotlightCard from '../components/SpotlightCard';
+import StarBorder from '../components/StarBorder';
+import GradientText from '../components/GradientText';
 
 interface CarouselItem {
   id: string;
@@ -12,6 +25,41 @@ interface CarouselItem {
   categoryIndex: number;
   data: any;
 }
+
+const hexToRgba = (hex: string, alpha: number) => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
+const detailModalVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { 
+    y: 0, 
+    opacity: 1, 
+    transition: { 
+      duration: 0.35, 
+      ease: [0.22, 1, 0.36, 1],
+      staggerChildren: 0.05,
+      delayChildren: 0.05 
+    } 
+  },
+  exit: { 
+    y: 10, 
+    opacity: 0, 
+    transition: { 
+      duration: 0.25, 
+      ease: [0.22, 1, 0.36, 1] 
+    } 
+  }
+};
+
+const moduleVariants = {
+  hidden: { y: 50, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] } },
+  exit: { y: 20, opacity: 0, transition: { duration: 0.2, ease: "easeIn" } }
+};
 
 const Home: React.FC = () => {
   const { data, loading, theme } = usePortfolio();
@@ -45,9 +93,11 @@ const Home: React.FC = () => {
 
   // Re-added state for detail modal
   const [detailItem, setDetailItem] = useState<CarouselItem | null>(null);
+  const [isModalReady, setIsModalReady] = useState<boolean>(false);
 
   // Markdown fetching states
   const [markdownContent, setMarkdownContent] = useState<string>('');
+  const [isPending, startTransition] = useTransition();
   const [markdownLoading, setMarkdownLoading] = useState<boolean>(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'info' | 'success' | 'warning' } | null>(null);
@@ -60,7 +110,22 @@ const Home: React.FC = () => {
     }
   }, [toast]);
 
+  // Delay heavy rendering until after modal entrance animation (400ms) to prevent stutter
   useEffect(() => {
+    let timeoutId: any;
+    if (detailItem) {
+      setIsModalReady(false);
+      timeoutId = setTimeout(() => setIsModalReady(true), 50); // Tiny delay to ensure smooth modal pop
+    } else {
+      setIsModalReady(false);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [detailItem]);
+
+  useEffect(() => {
+    let isCancelled = false;
+    let timeoutId: any;
+
     if (detailItem && detailItem.type !== 'education' && detailItem.data.hasMarkdown) {
       setMarkdownLoading(true);
       setMarkdownContent('');
@@ -70,32 +135,43 @@ const Home: React.FC = () => {
       if (detailItem.type === 'exchange') folderType = 'exchanges';
       if (detailItem.type === 'volunteer') folderType = 'volunteers';
       
-      // Try language-specific file first, fallback to details.md
       const langMdUrl = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}/details_${lang}.md`;
       const fallbackMdUrl = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}/details.md`;
       
+      // Fetch instantly so details load as fast as possible
       fetch(langMdUrl)
         .then(res => {
+          if (isCancelled) return;
           if (res.ok) return res.text();
-          // Fallback to details.md if specific language file isn't found
           return fetch(fallbackMdUrl).then(fallbackRes => {
             if (fallbackRes.ok) return fallbackRes.text();
             throw new Error('Failed to load fallback markdown');
           });
         })
         .then(text => {
-          setMarkdownContent(text);
+          if (isCancelled || text === undefined) return;
+          startTransition(() => {
+            setMarkdownContent(text);
+          });
         })
         .catch(err => {
+          if (isCancelled) return;
           console.error(err);
           setMarkdownContent('');
         })
         .finally(() => {
-          setMarkdownLoading(false);
+          if (!isCancelled) {
+            setMarkdownLoading(false);
+          }
         });
     } else {
       setMarkdownContent('');
     }
+
+    return () => {
+      isCancelled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [detailItem, lang]);
 
   const playTickSound = useTickSound();
@@ -337,15 +413,19 @@ const Home: React.FC = () => {
   const currentItem = items[activeIndex];
   const currentCategory = currentItem?.categoryTitle[lang];
 
-  // Dynamic Background Colors
-  // Dynamic Background Colors
-  let bgColors = ['bg-blue-400/55 dark:bg-blue-900/50', 'bg-indigo-400/55 dark:bg-indigo-900/50', 'bg-purple-400/55 dark:bg-purple-900/50'];
-  if (currentItem?.type === 'education') bgColors = ['bg-blue-400/55 dark:bg-blue-900/50', 'bg-cyan-400/55 dark:bg-cyan-900/50', 'bg-sky-400/55 dark:bg-sky-900/50'];
-  if (currentItem?.type === 'internship') bgColors = ['bg-indigo-400/55 dark:bg-indigo-900/50', 'bg-violet-400/55 dark:bg-violet-900/50', 'bg-purple-400/55 dark:bg-purple-900/50'];
-  if (currentItem?.type === 'project') bgColors = ['bg-purple-400/55 dark:bg-purple-900/50', 'bg-fuchsia-400/55 dark:bg-fuchsia-900/50', 'bg-pink-400/55 dark:bg-pink-900/50'];
-  if (currentItem?.type === 'exchange') bgColors = ['bg-rose-400/55 dark:bg-rose-900/50', 'bg-red-400/55 dark:bg-red-900/50', 'bg-orange-400/55 dark:bg-orange-900/50'];
-  if (currentItem?.type === 'volunteer') bgColors = ['bg-amber-400/55 dark:bg-amber-900/50', 'bg-orange-400/55 dark:bg-orange-900/50', 'bg-yellow-400/55 dark:bg-yellow-900/50'];
-  if (currentItem?.type === 'skill') bgColors = ['bg-teal-400/55 dark:bg-teal-900/50', 'bg-emerald-400/55 dark:bg-emerald-900/50', 'bg-green-400/55 dark:bg-green-900/50'];
+  // Dynamic Background Colors for Silk Component
+  // Using brighter mid-tones for dark mode because the shader multiplies the color by a pattern factor, 
+  // and the mask already adds a dark overlay.
+  let silkColor = theme === 'dark' ? '#2563eb' : '#bfdbfe'; // Blue 600 / Blue 200
+  if (currentItem?.type === 'education') silkColor = theme === 'dark' ? '#0284c7' : '#bae6fd'; // Sky 600
+  if (currentItem?.type === 'internship') silkColor = theme === 'dark' ? '#4f46e5' : '#c7d2fe'; // Indigo 600
+  if (currentItem?.type === 'project') silkColor = theme === 'dark' ? '#c026d3' : '#f5d0fe'; // Fuchsia 600
+  if (currentItem?.type === 'exchange') silkColor = theme === 'dark' ? '#e11d48' : '#fecdd3'; // Rose 600
+  if (currentItem?.type === 'volunteer') silkColor = theme === 'dark' ? '#d97706' : '#fde68a'; // Amber 600
+  if (currentItem?.type === 'skill') silkColor = theme === 'dark' ? '#0d9488' : '#a7f3d0'; // Teal 600
+
+
+
   let categoryColorClass = 'text-blue-600 dark:text-blue-400';
   if (currentItem?.type === 'education') categoryColorClass = 'text-blue-600 dark:text-blue-400';
   if (currentItem?.type === 'internship') categoryColorClass = 'text-indigo-600 dark:text-indigo-400';
@@ -358,11 +438,11 @@ const Home: React.FC = () => {
     <LayoutGroup>
     <div className={`relative w-full h-full ${isMobile ? '' : 'pt-20'}`}>
 
-      {/* Dynamic Background - Dreamy, vibrant floating gradient bubbles for all viewport sizes */}
-      <div className="fixed -inset-10 z-0 overflow-hidden pointer-events-none transition-colors duration-700">
-        <div className={`absolute top-[-10%] left-[-15%] w-[80vw] h-[80vw] md:w-[40%] md:h-[40%] rounded-full ${bgColors[0]} blur-[70px] md:blur-3xl opacity-80 dark:opacity-65 animate-blob mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
-        <div className={`absolute top-[25%] right-[-20%] w-[90vw] h-[90vw] md:w-[50%] md:h-[50%] rounded-full ${bgColors[1]} blur-[80px] md:blur-3xl opacity-80 dark:opacity-65 animate-blob-delayed mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
-        <div className={`absolute bottom-[-15%] left-[-10%] w-[100vw] h-[100vw] md:w-[60%] md:h-[60%] rounded-full ${bgColors[2]} blur-[90px] md:blur-3xl opacity-80 dark:opacity-65 animate-blob-slow mix-blend-multiply dark:mix-blend-screen transition-all duration-700`}></div>
+      {/* Dynamic Background - Silk Component */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <Silk color={silkColor} />
+        {/* Frosted glass overlay to darken and blur the background */}
+        <div className="absolute inset-0 bg-black/10 dark:bg-black/40 backdrop-blur-2xl"></div>
       </div>
 
       {/* Category Title */}
@@ -544,58 +624,69 @@ const Home: React.FC = () => {
                   if (diff === 0) {
                     opacity = 1;
                   } else if (Math.abs(diff) === 1) {
-                    opacity = isSameCategory ? 0.45 : 0;
+                    opacity = isSameCategory ? 0.25 : 0;
                   }
                 } else {
                   if (isSameCategory) {
-                    opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * 0.45, 0.1);
+                    opacity = isActive ? 1 : Math.max(1 - Math.abs(diff) * 0.65, 0.05);
                   }
                 }
     
                 // Render all items for smooth opacity transitions! Pointer events disabled if hidden
                 const pointerEventsClass = opacity === 0 ? 'pointer-events-none' : 'pointer-events-auto cursor-pointer';
                 // Shape based on type
-                let shapeClass = 'rounded-xl border-blue-200 dark:border-blue-800 bg-white/40 dark:bg-slate-900/40';
+                const baseShape = 'rounded-2xl border';
+                let shapeClass = `${baseShape} border-blue-200 dark:border-blue-800 bg-white/40 dark:bg-slate-900/40`;
+                let sectionColors = ['#3b82f6', '#06b6d4', '#6366f1'];
+                let sectionGlowColor = '210 90 60';
+                let sectionNumColor = 'text-blue-500/90 dark:text-blue-400/90 drop-shadow-sm';
+                
                 if (item.type === 'education') {
-                  shapeClass = isPortrait
-                    ? 'rounded-tr-[2rem] rounded-bl-[2rem] rounded-tl-lg rounded-br-lg border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30'
-                    : 'rounded-md border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30';
+                  shapeClass = `${baseShape} border-blue-300 dark:border-blue-700 bg-blue-50/60 dark:bg-blue-900/30`;
+                  sectionColors = ['#3b82f6', '#0ea5e9', '#6366f1'];
+                  sectionGlowColor = '210 90 60';
+                  sectionNumColor = 'text-blue-500/90 dark:text-blue-400/90 drop-shadow-sm';
                 }
                 if (item.type === 'internship') {
-                  shapeClass = isPortrait 
-                    ? 'rounded-tl-[2rem] rounded-br-[2rem] rounded-tr-lg rounded-bl-lg border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30' 
-                    : 'rounded-full border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30 px-6 sm:px-10';
+                  shapeClass = `${baseShape} border-indigo-400 dark:border-indigo-600 bg-indigo-50/60 dark:bg-indigo-900/30`;
+                  sectionColors = ['#6366f1', '#a855f7', '#ec4899'];
+                  sectionGlowColor = '240 80 65';
+                  sectionNumColor = 'text-indigo-500/90 dark:text-indigo-400/90 drop-shadow-sm';
                 }
                 if (item.type === 'project') {
-                  shapeClass = isPortrait
-                    ? 'rounded-tr-[1.5rem] border-t-8 border-l border-purple-500 bg-purple-50/60 dark:bg-purple-900/30'
-                    : 'rounded-none border-l-8 border-purple-500 bg-purple-50/60 dark:bg-purple-900/30';
+                  shapeClass = `${baseShape} border-purple-400 dark:border-purple-600 bg-purple-50/60 dark:bg-purple-900/30`;
+                  sectionColors = ['#c084fc', '#f472b6', '#38bdf8'];
+                  sectionGlowColor = '280 80 65';
+                  sectionNumColor = 'text-purple-500/90 dark:text-purple-400/90 drop-shadow-sm';
                 }
                 if (item.type === 'exchange') {
-                  shapeClass = isPortrait
-                    ? 'rounded-[2.5rem] rounded-tr-md rounded-bl-md border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30'
-                    : 'rounded-3xl border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30';
+                  shapeClass = `${baseShape} border-rose-400 dark:border-rose-600 bg-rose-50/60 dark:bg-rose-900/30`;
+                  sectionColors = ['#f43f5e', '#f97316', '#eab308'];
+                  sectionGlowColor = '340 80 60';
+                  sectionNumColor = 'text-rose-500/90 dark:text-rose-400/90 drop-shadow-sm';
                 }
                 if (item.type === 'volunteer') {
-                  shapeClass = isPortrait
-                    ? 'rounded-3xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30'
-                    : 'rounded-2xl border-dashed border-2 border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30';
+                  shapeClass = `${baseShape} border-amber-400 dark:border-amber-600 bg-amber-50/60 dark:bg-amber-900/30`;
+                  sectionColors = ['#f59e0b', '#84cc16', '#10b981'];
+                  sectionGlowColor = '40 90 50';
+                  sectionNumColor = 'text-amber-500/90 dark:text-amber-400/90 drop-shadow-sm';
                 }
                 if (item.type === 'skill') {
-                  shapeClass = isPortrait
-                    ? 'rounded-tl-[3.5rem] rounded-br-[3.5rem] rounded-tr-lg rounded-bl-lg border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30'
-                    : 'rounded-tr-[4rem] rounded-bl-[4rem] rounded-tl-xl rounded-br-xl border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30';
+                  shapeClass = `${baseShape} border-teal-400 dark:border-teal-600 bg-teal-50/60 dark:bg-teal-900/30`;
+                  sectionColors = ['#14b8a6', '#3b82f6', '#22c55e'];
+                  sectionGlowColor = '170 80 40';
+                  sectionNumColor = 'text-teal-500/90 dark:text-teal-400/90 drop-shadow-sm';
                 }
     
                 // Adaptive card width and height (compressed slightly for tighter vertical fit and narrow to avoid overlaps)
                 const cardSizeClass = isPortrait 
-                  ? 'w-[75vw] max-w-[310px] h-[42vh] max-h-[340px]' 
-                  : 'w-full max-w-[calc(100vw-2rem)] md:max-w-2xl lg:max-w-4xl';
+                  ? 'w-[80vw] max-w-[320px] h-[45vh] max-h-[380px] min-h-[350px]' 
+                  : 'w-full max-w-[calc(100vw-2rem)] md:max-w-2xl lg:max-w-4xl h-[280px] md:h-[320px] lg:h-[380px]';
     
                 return (
                   <motion.div
                     key={item.id}
-                    className={`absolute ${cardSizeClass} px-3 md:px-6 origin-center md:origin-left ${isActive ? 'z-20 cursor-default pointer-events-auto' : `z-10 ${pointerEventsClass}`}`}
+                    className={`absolute ${cardSizeClass} px-3 md:px-6 origin-center md:origin-left z-${isActive ? '20' : '10'} pointer-events-none`}
                     initial={false}
                     animate={{
                       y: yOffset,
@@ -606,15 +697,7 @@ const Home: React.FC = () => {
                       rotateZ,
                       z: isActive ? 50 : 0
                     }}
-                    transition={{ type: 'spring', stiffness: 180, damping: 28 }}
-                    onClick={() => {
-                      if (opacity === 0) return;
-                      if (!isActive) {
-                        setActiveIndex(index);
-                      } else if (item.type !== 'skill') {
-                        setDetailItem(item);
-                      }
-                    }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 30 }}
                     style={{ 
                       perspective: 1200,
                       willChange: 'transform, opacity',
@@ -622,13 +705,33 @@ const Home: React.FC = () => {
                       transformStyle: 'preserve-3d'
                     }}
                   >
-                    <div className={`relative overflow-hidden backdrop-blur-md transition-all duration-300 border ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02]' : 'hover:border-slate-400'} ${isPortrait ? 'h-full flex flex-col justify-start gap-2.5 p-5' : 'p-3.5 sm:p-6 md:p-8 flex items-center gap-3 md:gap-6'}`}>
+                    <BorderGlow
+                      backgroundColor="transparent"
+                      fillOpacity={0}
+                      coneSpread={33}
+                      edgeSensitivity={20}
+                      colors={sectionColors}
+                      glowColor={sectionGlowColor}
+                      onClick={() => {
+                        if (opacity === 0) return;
+                        if (!isActive) {
+                          setActiveIndex(index);
+                        } else if (item.type !== 'skill') {
+                          setDetailItem(item);
+                        }
+                      }}
+                      className={`relative overflow-hidden backdrop-blur-md transition-all duration-300 border ${shapeClass} ${isActive ? 'shadow-2xl scale-[1.02] cursor-default pointer-events-auto' : `hover:border-slate-400 ${pointerEventsClass}`}`}
+                    >
+                      <SpotlightCard
+                        spotlightColor={hexToRgba(sectionColors[0], theme === 'dark' ? 0.15 : 0.25)}
+                        className={`w-full h-full ${isPortrait ? 'flex flex-col justify-start gap-2.5 p-5' : 'p-3.5 sm:p-6 md:p-8 flex items-center gap-3 md:gap-6'}`}
+                      >
                       {isPortrait ? (
                         /* Portrait Vertical Card Structure (tightened vertical gaps) */
                         <div className="flex-1 flex flex-col justify-start gap-2 min-w-0 h-full">
                           {/* Top Header Row inside Card */}
                           <div className="flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800/50 pb-2 mb-1 flex-shrink-0">
-                            <div className="text-xl sm:text-2xl font-black text-slate-400/80 dark:text-slate-500/60 select-none">
+                            <div className={`text-xl sm:text-2xl font-black ${sectionNumColor} select-none`}>
                               {String(item.categoryIndex).padStart(2, '0')}
                             </div>
                             {(() => {
@@ -649,7 +752,7 @@ const Home: React.FC = () => {
 
                           {/* Middle Content Section - flows naturally closely packed */}
                           <div className="min-w-0 flex flex-col justify-start overflow-y-auto scrollbar-none pr-1">
-                            {renderItemContent(item, lang)}
+                            {renderItemContent(item, lang, isActive, sectionColors)}
                           </div>
 
                           {/* Bottom Section inside Card */}
@@ -690,13 +793,13 @@ const Home: React.FC = () => {
                         /* Desktop Horizontal Card Structure */
                         <>
                           {/* Left Side Number */}
-                          <div className="text-3xl sm:text-6xl md:text-7xl font-black text-slate-300/80 dark:text-slate-600/50 flex-shrink-0 w-10 sm:w-20 md:w-24 text-center select-none">
+                          <div className={`text-3xl sm:text-6xl md:text-7xl font-black ${sectionNumColor} flex-shrink-0 w-10 sm:w-20 md:w-24 text-center select-none opacity-80`}>
                             {String(item.categoryIndex).padStart(2, '0')}
                           </div>
         
                           {/* Right Side Content */}
                           <div className="flex-1 relative z-10 border-l-2 border-slate-200/50 dark:border-slate-700/50 pl-3 md:pl-6 min-w-0">
-                            {renderItemContent(item, lang)}
+                            {renderItemContent(item, lang, isActive, sectionColors)}
                             {isActive && item.type !== 'skill' && (
                               <div className="mt-1.5 md:mt-3 flex items-center justify-between gap-3">
                                 {/* Keywords inline */}
@@ -729,7 +832,8 @@ const Home: React.FC = () => {
                           </div>
                         </>
                       )}
-                    </div>
+                      </SpotlightCard>
+                    </BorderGlow>
                   </motion.div>
                 );
               })}
@@ -743,27 +847,35 @@ const Home: React.FC = () => {
         <>
           {/* Left Arrow Button */}
           {activeIndex > 0 && (
-            <button
+            <StarBorder
+              as="button"
               onClick={() => setActiveIndex(prev => Math.max(prev - 1, 0))}
-              className="fixed left-3 bottom-[38%] -translate-y-1/2 z-50 w-10 h-10 rounded-full glass-card hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/20 dark:border-slate-700/50 flex items-center justify-center shadow-lg active:scale-90 transition-transform pointer-events-auto text-slate-700 dark:text-slate-200"
+              thickness={2}
+              color={theme === 'dark' ? 'cyan' : '#0ea5e9'}
+              className="fixed left-3 bottom-[38%] -translate-y-1/2 z-50 rounded-full shadow-lg active:scale-90 transition-transform pointer-events-auto"
+              innerClassName="flex items-center justify-center w-10 h-10 rounded-full glass-card hover:bg-slate-200/50 dark:hover:bg-slate-800/80 border border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-200"
               aria-label="Previous Card"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M15 18l-6-6 6-6" />
               </svg>
-            </button>
+            </StarBorder>
           )}
           {/* Right Arrow Button */}
           {activeIndex < items.length - 1 && (
-            <button
+            <StarBorder
+              as="button"
               onClick={() => setActiveIndex(prev => Math.min(prev + 1, items.length - 1))}
-              className="fixed right-3 bottom-[38%] -translate-y-1/2 z-50 w-10 h-10 rounded-full glass-card hover:bg-white/80 dark:hover:bg-slate-800/80 border border-white/20 dark:border-slate-700/50 flex items-center justify-center shadow-lg active:scale-90 transition-transform pointer-events-auto text-slate-700 dark:text-slate-200"
+              thickness={2}
+              color={theme === 'dark' ? 'cyan' : '#0ea5e9'}
+              className="fixed right-3 bottom-[38%] -translate-y-1/2 z-50 rounded-full shadow-lg active:scale-90 transition-transform pointer-events-auto"
+              innerClassName="flex items-center justify-center w-10 h-10 rounded-full glass-card hover:bg-slate-200/50 dark:hover:bg-slate-800/80 border border-white/20 dark:border-slate-700/50 text-slate-700 dark:text-slate-200"
               aria-label="Next Card"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M9 18l6-6-6-6" />
               </svg>
-            </button>
+            </StarBorder>
           )}
         </>
       )}
@@ -803,8 +915,8 @@ const Home: React.FC = () => {
                 <React.Fragment key={item.id}>
                   {isNewSection && (
                     isPortrait 
-                      ? <div className="w-px h-3 bg-slate-300 dark:bg-slate-700 mx-1 flex-shrink-0" />
-                      : <div className="h-4 border-r-2 border-slate-200 dark:border-slate-800 mr-[-4px]" />
+                      ? <div className="w-2 flex-shrink-0" />
+                      : <div className="h-3 flex-shrink-0" />
                   )}
                   <button
                     onClick={() => setActiveIndex(index)}
@@ -831,13 +943,44 @@ const Home: React.FC = () => {
             className="fixed inset-0 z-[110] flex items-center justify-center overflow-hidden cursor-pointer"
             onClick={() => setShowWelcome(false)}
           >
-            {/* Darker background for welcome screen */}
+            {/* PrismaticBurst background for welcome screen */}
             <motion.div 
-              className="absolute inset-0 bg-slate-50/10 dark:bg-black/20 backdrop-blur-[2px]"
+              className={`absolute inset-0 z-0 ${theme === 'dark' ? 'bg-black' : 'bg-slate-900'}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-            />
+            >
+              <PrismaticBurst
+                animationType="rotate3d"
+                intensity={2}
+                speed={0.5}
+                distort={1.0}
+                paused={false}
+                offset={{ x: 0, y: 120 }}
+                hoverDampness={0.25}
+                rayCount={24}
+                mixBlendMode={theme === 'dark' ? 'screen' : 'screen'}
+                colors={theme === 'dark' ? ['#0ea5e9', '#6366f1', '#8b5cf6'] : ['#0284c7', '#4f46e5', '#38bdf8']}
+              />
+              {/* Dark overlay mask to highlight the main subject */}
+              <div className="absolute inset-0 z-10 bg-black/40 dark:bg-black/50 pointer-events-none" />
+              {/* LightRays Effect */}
+              {data.settings?.enableLightRays && (
+                <div className="absolute inset-0 z-20 pointer-events-none">
+                  <LightRays
+                    raysOrigin="top-center"
+                    raysColor={theme === 'dark' ? '#0ea5e9' : '#38bdf8'}
+                    raysSpeed={1.5}
+                    lightSpread={0.8}
+                    rayLength={1.2}
+                    followMouse={true}
+                    mouseInfluence={0.1}
+                    noiseAmount={0.0}
+                    distortion={0.05}
+                  />
+                </div>
+              )}
+            </motion.div>
 
             <div className="relative z-10 flex flex-col items-center gap-8">
               <motion.div
@@ -873,24 +1016,22 @@ const Home: React.FC = () => {
               </motion.div>
               
               <div className="text-center space-y-4">
-                <motion.h1
-                  layoutId="hero-name"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4, duration: 0.8 }}
-                  className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter"
-                >
-                  {data.hero.name[lang]}
-                </motion.h1>
-                <motion.p
-                  layoutId="hero-role"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5, duration: 0.8 }}
-                  className="text-lg md:text-2xl text-blue-600 dark:text-blue-400 font-bold tracking-wide"
-                >
-                  {data.hero.role[lang]}
-                </motion.p>
+                <BlurText
+                  text={data.hero.name[lang]}
+                  delay={100}
+                  initialDelay={1000}
+                  animateBy="words"
+                  direction="bottom"
+                  className="text-4xl md:text-6xl font-black text-white tracking-tighter"
+                />
+                <BlurText
+                  text={data.hero.role[lang]}
+                  delay={50}
+                  initialDelay={1100}
+                  animateBy="words"
+                  direction="bottom"
+                  className="text-lg md:text-2xl text-blue-400 font-bold tracking-wide"
+                />
               </div>
 
               <motion.div
@@ -899,13 +1040,13 @@ const Home: React.FC = () => {
                 transition={{ delay: 1, duration: 0.8 }}
                 className="mt-12 flex flex-col items-center gap-2"
               >
-                <p className="text-slate-500 dark:text-slate-400 text-sm font-medium tracking-widest uppercase">
+                <p className="text-slate-300 text-sm font-medium tracking-widest uppercase">
                   {lang === 'zh' ? '点击或向下滚动进入' : 'Click or scroll to enter'}
                 </p>
                 <motion.div
                   animate={{ y: [0, 8, 0] }}
                   transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-                  className="text-slate-400 dark:text-slate-500"
+                  className="text-slate-400"
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M7 13l5 5 5-5M7 6l5 5 5-5" />
@@ -940,21 +1081,22 @@ const Home: React.FC = () => {
               transition={{ duration: 1.2, ease: 'easeInOut' }}
             />
 
-            {/* Orbiting text rings */}
-            <EndScreenOrbit lang={lang} />
+              <>
+                {/* Orbiting text rings */}
+                <EndScreenOrbit lang={lang} />
 
-            {/* Center: Avatar + Name — shared layout transition from sidebar */}
-            <motion.div
-              className="relative z-10 flex flex-col items-center gap-6"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <motion.div
-                layoutId="hero-avatar"
-                transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                className="w-40 h-40 md:w-72 md:h-72 rounded-full border-4 border-white dark:border-slate-300 shadow-xl relative"
+                {/* Center: Avatar + Name — shared layout transition from sidebar */}
+                <motion.div
+                  className="relative z-10 flex flex-col items-center gap-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <motion.div
+                    layoutId="hero-avatar"
+                    transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+                    className="w-40 h-40 md:w-72 md:h-72 rounded-full border-4 border-white dark:border-slate-300 shadow-xl relative"
               >
                 {/* Breathing effect on a separate layer to avoid layoutId conflicts */}
                 <motion.div 
@@ -1004,7 +1146,8 @@ const Home: React.FC = () => {
               >
                 ↑ {lang === 'zh' ? '向上滚动返回' : 'Scroll up to return'}
               </motion.p>
-            </motion.div>
+              </motion.div>
+            </>
           </motion.div>
         )}
       </AnimatePresence>
@@ -1052,31 +1195,79 @@ const Home: React.FC = () => {
 
       {/* Detail Modal */}
       <AnimatePresence>
-        {detailItem && (
+        {detailItem && (() => {
+          let gColor1 = theme === 'dark' ? '#ff007a' : '#FF9FFC';
+          let gColor2 = theme === 'dark' ? '#4d3dff' : '#5227FF';
+          let gColor3 = theme === 'dark' ? '#000000' : '#B497CF';
+          
+          if (detailItem.type === 'education') { gColor1 = theme === 'dark' ? '#0ea5e9' : '#7dd3fc'; gColor2 = theme === 'dark' ? '#0284c7' : '#38bdf8'; gColor3 = theme === 'dark' ? '#000000' : '#bae6fd'; }
+          if (detailItem.type === 'internship') { gColor1 = theme === 'dark' ? '#6366f1' : '#a5b4fc'; gColor2 = theme === 'dark' ? '#4f46e5' : '#818cf8'; gColor3 = theme === 'dark' ? '#000000' : '#c7d2fe'; }
+          if (detailItem.type === 'project') { gColor1 = theme === 'dark' ? '#d946ef' : '#f0abfc'; gColor2 = theme === 'dark' ? '#c026d3' : '#e879f9'; gColor3 = theme === 'dark' ? '#000000' : '#f5d0fe'; }
+          if (detailItem.type === 'exchange') { gColor1 = theme === 'dark' ? '#f43f5e' : '#fda4af'; gColor2 = theme === 'dark' ? '#e11d48' : '#fb7185'; gColor3 = theme === 'dark' ? '#000000' : '#fecdd3'; }
+          if (detailItem.type === 'volunteer') { gColor1 = theme === 'dark' ? '#f59e0b' : '#fcd34d'; gColor2 = theme === 'dark' ? '#d97706' : '#fbbf24'; gColor3 = theme === 'dark' ? '#000000' : '#fde68a'; }
+          if (detailItem.type === 'skill') { gColor1 = theme === 'dark' ? '#14b8a6' : '#5eead4'; gColor2 = theme === 'dark' ? '#0d9488' : '#2dd4bf'; gColor3 = theme === 'dark' ? '#000000' : '#99f6e4'; }
+
+          return (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 bg-slate-950/40 dark:bg-black/80 backdrop-blur-xl"
-            onClick={() => setDetailItem(null)}
+            onPointerDown={(e) => e.target === e.currentTarget && setDetailItem(null)}
           >
-            <motion.div
-              initial={{ scale: 0.96, y: 15, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.96, y: 15, opacity: 0 }}
-              className="bg-slate-50/95 dark:bg-slate-950/95 backdrop-blur-3xl p-4 sm:p-8 md:p-10 rounded-3xl w-[96vw] md:w-[95vw] max-w-[1400px] h-auto max-h-[92vh] md:max-h-[90vh] overflow-hidden relative border border-white/20 dark:border-slate-800/80 shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.55)] flex flex-col text-left"
-              onClick={e => e.stopPropagation()}
-            >
+          <motion.div
+            variants={detailModalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            style={{ willChange: "transform, opacity" }}
+            className="p-4 sm:p-8 md:p-10 rounded-3xl w-[96vw] md:w-[95vw] max-w-[1400px] h-auto max-h-[92vh] md:max-h-[90vh] overflow-hidden relative border border-white/20 dark:border-slate-800/80 shadow-[0_20px_50px_rgba(0,0,0,0.15)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.55)] flex flex-col text-left"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Dynamic Grainient Background */}
+            <div className="absolute inset-0 z-0 pointer-events-none rounded-3xl overflow-hidden">
+              <Grainient
+                color1={gColor1}
+                color2={gColor2}
+                color3={gColor3}
+                timeSpeed={0.15}
+                colorBalance={0.0}
+                warpStrength={1.0}
+                warpFrequency={5.0}
+                warpSpeed={2.0}
+                warpAmplitude={50.0}
+                blendAngle={0.0}
+                blendSoftness={0.05}
+                rotationAmount={500.0}
+                noiseScale={2.0}
+                grainAmount={0.1}
+                grainScale={2.0}
+                grainAnimated={false}
+                contrast={1.5}
+                gamma={1.0}
+                saturation={1.0}
+                centerX={0.0}
+                centerY={0.0}
+                zoom={0.9}
+              />
+              {/* Mask overlay to ensure content readability */}
+              <div className="absolute inset-0 bg-white/70 dark:bg-slate-950/75 backdrop-blur-[20px]" />
+            </div>
+
               {/* Fixed Close Button */}
-              <button
+              <StarBorder
+                as="button"
                 onClick={() => setDetailItem(null)}
-                className="absolute top-4 right-4 md:top-6 md:right-6 p-2 md:p-2.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all text-slate-500 hover:text-slate-900 dark:hover:text-white text-base md:text-lg z-50 shadow-md border border-slate-200/30 bg-white/80 dark:bg-slate-900/80"
+                thickness={2}
+                color={theme === 'dark' ? 'cyan' : '#0ea5e9'}
+                className="absolute top-4 right-4 md:top-6 md:right-6 z-50 rounded-full shadow-md"
+                innerClassName="flex items-center justify-center p-2 md:p-2.5 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800/50 transition-all text-slate-500 hover:text-slate-900 dark:hover:text-white text-base md:text-lg border border-slate-200/30 bg-white/80 dark:bg-slate-900/80 w-10 h-10"
               >
                 ✕
-              </button>
+              </StarBorder>
 
               {/* Fixed Header */}
-              <div className="mb-6 pr-14 text-left border-b border-slate-200/60 dark:border-slate-800/80 pb-4 flex-shrink-0">
+              <motion.div variants={moduleVariants} className="relative z-10 mb-6 pr-14 text-left border-b border-slate-200/60 dark:border-slate-800/80 pb-4 flex-shrink-0">
                 <div className="flex items-center gap-2 mb-2">
                   <span className={`px-2.5 py-0.5 text-xs font-semibold rounded-full border ${
                     detailItem.type === 'project' 
@@ -1104,10 +1295,10 @@ const Home: React.FC = () => {
                   <span className="text-slate-300 dark:text-slate-700 font-normal">|</span>
                   <span className="text-slate-500 dark:text-slate-400 font-medium whitespace-nowrap">📍 {detailItem.data.location[lang]}</span>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Scrollable Columns Wrapper */}
-              <div className={`flex-1 overflow-y-auto grid grid-cols-1 gap-8 md:gap-10 pr-2 scrollbar-thin w-full ${
+              <div className={`relative z-10 flex-1 overflow-y-auto grid grid-cols-1 gap-8 md:gap-10 pr-2 scrollbar-thin w-full ${
                 detailItem.type === 'education' ? 'lg:grid-cols-[1fr_2fr]' : 'lg:grid-cols-[1fr_1.3fr]'
               }`}>
                 {detailItem.type === 'education' ? (
@@ -1116,19 +1307,19 @@ const Home: React.FC = () => {
                     <div className="space-y-6 flex flex-col">
                       {/* Keywords if present */}
                       {detailItem.data.keywords?.[lang] && (
-                        <div className="flex flex-wrap gap-2 mb-2">
+                        <motion.div variants={moduleVariants} className="flex flex-wrap gap-2 mb-2">
                           {detailItem.data.keywords[lang].map((kw: string, i: number) => (
                             <span key={i} className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800/80">
                               #{kw}
                             </span>
                           ))}
-                        </div>
+                        </motion.div>
                       )}
 
                       {/* Education Left Column: GPA, Courses, Scholarships stacked vertically */}
                       <div className="flex flex-col gap-6 flex-1">
                         {detailItem.data.gpa && (
-                          <div 
+                          <motion.div variants={moduleVariants}
                             className="p-5 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/40 dark:border-blue-900/30 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
                           >
                             <div>
@@ -1151,11 +1342,11 @@ const Home: React.FC = () => {
                                 <span>{lang === 'zh' ? '点击查看官方成绩单' : 'View Transcript'}</span>
                               </button>
                             )}
-                          </div>
+                          </motion.div>
                         )}
                         
                         {detailItem.data.courses && (
-                          <div 
+                          <motion.div variants={moduleVariants}
                             className="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/40 dark:border-indigo-900/30 flex flex-col justify-between gap-4 shadow-sm hover:shadow-md transition-all"
                           >
                             <div>
@@ -1165,11 +1356,11 @@ const Home: React.FC = () => {
                               </h4>
                               <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">{detailItem.data.courses[lang]}</p>
                             </div>
-                          </div>
+                          </motion.div>
                         )}
 
                         {detailItem.data.scholarships && (
-                          <div className="p-5 rounded-2xl bg-amber-50/50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-900/30 shadow-sm flex-1 flex flex-col justify-between">
+                          <motion.div variants={moduleVariants} className="p-5 rounded-2xl bg-amber-50/50 dark:bg-amber-900/20 border border-amber-200/40 dark:border-amber-900/30 shadow-sm flex-1 flex flex-col justify-between">
                             <div>
                               <h4 className="text-base font-bold text-amber-800 dark:text-amber-300 mb-3 flex items-center gap-2">
                                 <span>🏅</span>
@@ -1240,7 +1431,7 @@ const Home: React.FC = () => {
                                 })()}
                               </ul>
                             </div>
-                          </div>
+                          </motion.div>
                         )}
                       </div>
                     </div>
@@ -1249,7 +1440,7 @@ const Home: React.FC = () => {
                     <div className="space-y-8">
                       {/* Education Right Column: Awards list */}
                       {detailItem.data.awards && (
-                        <div className="p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/40 dark:border-purple-900/30 backdrop-blur-md flex flex-col justify-between h-full">
+                        <motion.div variants={moduleVariants} className="p-5 rounded-2xl bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/40 dark:border-purple-900/30 backdrop-blur-md flex flex-col justify-between h-full">
                           <div>
                             <h4 className="text-base font-bold text-purple-800 dark:text-purple-300 mb-4 flex items-center gap-2">
                               <span>🏆</span>
@@ -1304,7 +1495,7 @@ const Home: React.FC = () => {
                               })}
                             </ul>
                           </div>
-                        </div>
+                        </motion.div>
                       )}
                     </div>
                   </>
@@ -1314,17 +1505,17 @@ const Home: React.FC = () => {
                     <div className="space-y-8 flex flex-col">
                       {/* Keywords if present */}
                       {detailItem.data.keywords?.[lang] && (
-                        <div className="flex flex-wrap gap-2">
+                        <motion.div variants={moduleVariants} className="flex flex-wrap gap-2">
                           {detailItem.data.keywords[lang].map((kw: string, i: number) => (
                             <span key={i} className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800/80">
                               #{kw}
                             </span>
                           ))}
-                        </div>
+                        </motion.div>
                       )}
 
                       {/* 1. Bullet Points Summary */}
-                      <div className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md">
+                      <motion.div variants={moduleVariants} className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md">
                         <h4 className="text-base font-bold mb-4 text-slate-850 dark:text-slate-250">
                           {lang === 'zh' ? '工作要点 / Overview' : 'Key Highlights'}
                         </h4>
@@ -1336,11 +1527,11 @@ const Home: React.FC = () => {
                             </li>
                           ))}
                         </ul>
-                      </div>
+                      </motion.div>
 
                       {/* 2. Certificate adaptive showcase */}
                       {detailItem.data.showCerts !== false && detailItem.data.certificates && detailItem.data.certificates.length > 0 && (
-                        <div className="space-y-4">
+                        <motion.div variants={moduleVariants} className="space-y-4">
                           <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                             <span>📜</span>
                             <span>{lang === 'zh' ? '获得证书 / Certificates' : 'Certificates Obtained'}</span>
@@ -1379,12 +1570,12 @@ const Home: React.FC = () => {
                               );
                             })}
                           </div>
-                        </div>
+                        </motion.div>
                       )}
 
                       {/* 3. Experience details photo gallery with distinct animation based on type */}
                       {detailItem.data.showPhotos !== false && detailItem.data.photos && detailItem.data.photos.length > 0 && (
-                        <div className="space-y-4">
+                        <motion.div variants={moduleVariants} className="space-y-4">
                           <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                             <span>🖼️</span>
                             <span>{lang === 'zh' ? '现场细节与过程 / Project Gallery' : 'Process & Gallery'}</span>
@@ -1399,22 +1590,70 @@ const Home: React.FC = () => {
                             
                             const folderPath = `${import.meta.env.BASE_URL}experiences/${folderType}/${detailItem.data.id}`;
                             
-                            if (detailItem.type === 'project') {
-                              return <Research3DCarousel photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
-                            } else if (detailItem.type === 'internship') {
-                              return <InternshipPolaroidWall photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
-                            } else {
-                              return <CoverFlowSlider photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
-                            }
+                            const content = (() => {
+                              if (detailItem.type === 'project') {
+                                return <CoverFlowSlider photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
+                              } else if (detailItem.type === 'internship') {
+                                return <InternshipPolaroidWall photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
+                              } else if (detailItem.type === 'volunteer') {
+                                const stackCards = detailItem.data.photos.map((photo: string, i: number) => (
+                                  <img
+                                    key={i}
+                                    src={`${folderPath}/photos/${photo}`}
+                                    alt={`volunteer-photo-${i}`}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                  />
+                                ));
+                                return (
+                                  <div className="w-full max-w-[350px] md:max-w-[450px] aspect-square mx-auto relative cursor-grab active:cursor-grabbing">
+                                    <Stack
+                                      randomRotation={true}
+                                      sensitivity={180}
+                                      sendToBackOnClick={true}
+                                      cards={stackCards}
+                                    />
+                                  </div>
+                                );
+                              } else {
+                                return <CoverFlowSlider photos={detailItem.data.photos} folderPath={folderPath} onPhotoClick={setLightboxImage} />;
+                              }
+                            })();
+
+                            return (
+                              <AnimatePresence mode="wait">
+                                {isModalReady ? (
+                                  <motion.div
+                                    key="gallery"
+                                    initial={{ opacity: 0, filter: 'blur(8px)', scale: 0.98 }}
+                                    animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
+                                    exit={{ opacity: 0, filter: 'blur(4px)', scale: 0.98 }}
+                                    transition={{ duration: 0.5, ease: "easeOut" }}
+                                  >
+                                    {content}
+                                  </motion.div>
+                                ) : (
+                                  <motion.div
+                                    key="loading"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0, transition: { duration: 0.2 } }}
+                                    className="flex flex-col items-center justify-center gap-3 text-slate-400 py-32 bg-slate-100/30 dark:bg-slate-900/30 rounded-2xl border border-slate-200/50 dark:border-slate-800/50"
+                                  >
+                                    <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+                                    <span className="text-sm font-medium">{lang === 'zh' ? '正在加载画廊...' : 'Loading Gallery...'}</span>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            );
                           })()}
-                        </div>
+                        </motion.div>
                       )}
                     </div>
 
                     {/* Right Column: Markdown Detailed Process Document */}
                     <div className="space-y-8">
                       {detailItem.data.hasMarkdown && (
-                        <div className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md">
+                        <motion.div variants={moduleVariants} className="p-6 rounded-2xl bg-white/40 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md">
                           <h4 className="text-base font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2 border-b border-slate-200/40 dark:border-slate-800/40 pb-3">
                             <span>📝</span>
                             <span>{lang === 'zh' ? '详细记录 / Detailed Process' : 'Details & Documentation'}</span>
@@ -1430,7 +1669,7 @@ const Home: React.FC = () => {
                               {renderMarkdown(markdownContent)}
                             </div>
                           )}
-                        </div>
+                        </motion.div>
                       )}
                     </div>
                   </>
@@ -1439,7 +1678,8 @@ const Home: React.FC = () => {
 
             </motion.div>
           </motion.div>
-        )}
+          );
+        })()}
       </AnimatePresence>
 
       {/* Lightbox for zooming in certificates */}
@@ -1449,7 +1689,7 @@ const Home: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={() => setLightboxImage(null)}
+            onPointerDown={(e) => e.target === e.currentTarget && setLightboxImage(null)}
             className="fixed inset-0 z-[120] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
           >
             <button
@@ -1531,18 +1771,12 @@ function EndScreenOrbit({ lang }: { lang: 'en' | 'zh' }) {
   // Each ring: { r: radius, text: string, dir: 1|-1, dur: seconds, fontSize, opacity, offset }
   // Combining more phrases for longer paths and adding offsets to stagger gaps
   const rings = [
-    { r: 1050, dir: 1, dur: 120, fontSize: 18, opacity: 0.12, text: source[0] + source[2] + source[4] + source[6], offset: 0 },
-    { r: 940, dir: -1, dur: 110, fontSize: 18, opacity: 0.15, text: source[1] + source[3] + source[5] + source[7], offset: 45 },
-    { r: 840, dir: 1, dur: 100, fontSize: 17, opacity: 0.18, text: source[6] + source[7] + source[0] + source[1], offset: 90 },
-    { r: 750, dir: -1, dur: 90, fontSize: 17, opacity: 0.22, text: source[2] + source[4] + source[6] + source[3], offset: 135 },
-    { r: 670, dir: 1, dur: 82, fontSize: 16, opacity: 0.26, text: source[1] + source[5] + source[7] + source[4], offset: 180 },
     { r: 600, dir: -1, dur: 75, fontSize: 16, opacity: 0.30, text: source[0] + source[3] + source[5] + source[2], offset: 225 },
-    { r: 540, dir: 1, dur: 68, fontSize: 15, opacity: 0.35, text: source[4] + source[1] + source[6], offset: 270 },
-    { r: 485, dir: -1, dur: 60, fontSize: 15, opacity: 0.40, text: source[2] + source[6] + source[0], offset: 315 },
-    { r: 435, dir: 1, dur: 52, fontSize: 14, opacity: 0.45, text: source[5] + source[7] + source[1], offset: 60 },
-    { r: 390, dir: -1, dur: 45, fontSize: 14, opacity: 0.50, text: source[0] + source[4] + source[2], offset: 120 },
-    { r: 350, dir: 1, dur: 40, fontSize: 13, opacity: 0.55, text: source[1] + source[3] + source[5], offset: 180 },
-    { r: 315, dir: -1, dur: 35, fontSize: 13, opacity: 0.60, text: source[2] + source[5] + source[7], offset: 240 },
+    { r: 520, dir: 1,  dur: 65, fontSize: 15, opacity: 0.38, text: source[4] + source[1] + source[6], offset: 270 },
+    { r: 450, dir: -1, dur: 55, fontSize: 15, opacity: 0.44, text: source[2] + source[6] + source[0], offset: 315 },
+    { r: 390, dir: 1,  dur: 46, fontSize: 14, opacity: 0.50, text: source[5] + source[7] + source[1], offset: 60 },
+    { r: 340, dir: -1, dur: 38, fontSize: 13, opacity: 0.56, text: source[0] + source[4] + source[2], offset: 120 },
+    { r: 295, dir: 1,  dur: 32, fontSize: 13, opacity: 0.62, text: source[1] + source[3] + source[5], offset: 180 },
   ];
 
   return (
@@ -1595,18 +1829,32 @@ function EndScreenOrbit({ lang }: { lang: 'en' | 'zh' }) {
 
 export default Home;
 
-function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
+function renderItemContent(item: CarouselItem, lang: 'en' | 'zh', isActive: boolean, sectionColors: string[]) {
   if (item.type === 'education') {
     return (
       <div>
         <div className="flex flex-col sm:flex-row justify-between items-start gap-1">
           <div>
-            <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight">{item.data.institution[lang]}</h4>
-            <p className="text-blue-600 dark:text-blue-400 font-medium text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1">{item.data.degree[lang]}</p>
+            <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight">
+              <ShinyText text={item.data.institution[lang]} disabled={!isActive} speed={2} className="inline-block" shineColor="#ffffff" />
+            </h4>
+            <p className="text-blue-600 dark:text-blue-400 font-medium text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1">
+              <GradientText colors={sectionColors} disabled={!isActive} animationSpeed={6}>
+                {item.data.degree[lang]}
+              </GradientText>
+            </p>
           </div>
           <div className="text-left sm:text-right text-[10px] sm:text-xs md:text-sm text-slate-500 font-medium whitespace-nowrap mt-1 sm:mt-0 sm:pl-4">
-            <div>{item.data.period}</div>
-            <div>{item.data.location[lang]}</div>
+            <div>
+              <GradientText colors={sectionColors} disabled={!isActive} animationSpeed={7}>
+                {item.data.period}
+              </GradientText>
+            </div>
+            <div>
+              <GradientText colors={sectionColors} disabled={!isActive} animationSpeed={8}>
+                {item.data.location[lang]}
+              </GradientText>
+            </div>
           </div>
         </div>
       </div>
@@ -1624,12 +1872,26 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
       <div>
         <div className="flex flex-col sm:flex-row justify-between items-start gap-1">
           <div className="pr-2 min-w-0">
-            <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight truncate-multiline">{title}</h4>
-            <p className={`${roleColor} font-medium text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1`}>{item.data.role[lang]}</p>
+            <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-tight truncate-multiline">
+              <ShinyText text={title} disabled={!isActive} speed={2} className="inline-block" shineColor="#ffffff" />
+            </h4>
+            <p className={`${roleColor} font-medium text-xs sm:text-sm md:text-base mt-0.5 sm:mt-1`}>
+              <GradientText colors={sectionColors} disabled={!isActive} animationSpeed={6}>
+                {item.data.role[lang]}
+              </GradientText>
+            </p>
           </div>
           <div className="text-left sm:text-right text-[10px] sm:text-xs md:text-sm text-slate-500 font-medium whitespace-nowrap mt-1 sm:mt-0 sm:pl-4">
-            <div>{item.data.period}</div>
-            <div>{item.data.location[lang]}</div>
+            <div>
+              <GradientText colors={sectionColors} disabled={!isActive} animationSpeed={7}>
+                {item.data.period}
+              </GradientText>
+            </div>
+            <div>
+              <GradientText colors={sectionColors} disabled={!isActive} animationSpeed={8}>
+                {item.data.location[lang]}
+              </GradientText>
+            </div>
           </div>
         </div>
       </div>
@@ -1639,7 +1901,9 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
   if (item.type === 'skill') {
     return (
       <div>
-        <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1.5 sm:mb-3 md:mb-6">{item.data.category[lang]}</h4>
+        <h4 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1.5 sm:mb-3 md:mb-6">
+          <ShinyText text={item.data.category[lang]} disabled={!isActive} speed={2} className="inline-block" shineColor="#ffffff" />
+        </h4>
         <div className="flex flex-wrap gap-1.5 md:gap-3">
           {item.data.items[lang].map((skill: string, i: number) => (
             <span key={i} className="px-2 py-1 md:px-4 md:py-2 bg-white/60 dark:bg-slate-800/60 rounded-md md:rounded-xl text-[10px] sm:text-xs md:text-sm font-medium border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -1654,283 +1918,13 @@ function renderItemContent(item: CarouselItem, lang: 'en' | 'zh') {
   return null;
 }
 
+
 // ==========================================
 // Custom Experience Photo Gallery Components
 // ==========================================
 
-// 1. Research Project 3D Rotating Carousel
-const Research3DCarousel: React.FC<{ photos: string[], folderPath: string, onPhotoClick: (src: string) => void }> = ({ photos, folderPath, onPhotoClick }) => {
-  const { i18n } = useTranslation();
-  const lang = i18n.language as 'en' | 'zh';
-  const count = photos.length;
-  const [rotation, setRotation] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  
-  const [isLocalMobile, setIsLocalMobile] = useState(window.innerWidth < 640);
-  useEffect(() => {
-    const handleResize = () => setIsLocalMobile(window.innerWidth < 640);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Adaptive layout strategy based on card count
-  if (count === 1) {
-    const src = `${folderPath}/photos/${photos[0]}`;
-    return (
-      <div className="relative w-full h-[230px] sm:h-[340px] flex items-center justify-center bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner">
-        <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent pointer-events-none rounded-3xl" />
-        <div 
-          className="relative w-[220px] h-[146px] sm:w-[360px] sm:h-[240px] rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_20px_rgba(168,85,247,0.2)] bg-slate-900 cursor-pointer hover:border-purple-400 hover:scale-[1.02] transition-all duration-300 group"
-          onClick={() => onPhotoClick(src)}
-        >
-          <img 
-            src={src} 
-            alt="Project Detail" 
-            className="w-full h-full object-cover select-none"
-            style={{
-              imageRendering: '-webkit-optimize-contrast',
-              backfaceVisibility: 'hidden',
-              transform: 'translate3d(0,0,0)',
-            }}
-          />
-          <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.603 10.603z" />
-            </svg>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (count === 2) {
-    return (
-      <div className="relative w-full h-[230px] sm:h-[340px] flex items-center justify-center bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner px-4 sm:px-6">
-        <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent pointer-events-none rounded-3xl" />
-        <div className="flex gap-4 sm:gap-6 w-full max-w-[500px] justify-center">
-          {photos.slice(0, 2).map((photo, idx) => {
-            const src = `${folderPath}/photos/${photo}`;
-            return (
-              <div 
-                key={idx}
-                className="relative w-[110px] h-[73px] sm:w-[220px] sm:h-[146px] rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.15)] bg-slate-900 cursor-pointer hover:border-purple-400 hover:scale-[1.04] transition-all duration-300 group"
-                onClick={() => onPhotoClick(src)}
-              >
-                <img 
-                  src={src} 
-                  alt={`Project Detail ${idx}`} 
-                  className="w-full h-full object-cover select-none"
-                  style={{
-                    imageRendering: '-webkit-optimize-contrast',
-                    backfaceVisibility: 'hidden',
-                    transform: 'translate3d(0,0,0)',
-                  }}
-                />
-                 <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.603 10.603z" />
-                  </svg>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  }
-
-  // Dynamic card and cylinder spacing based on image count to prevent clipping and overlap completely
-  let cardWidth = 200;
-  let cardHeight = 135;
-  let radius = 240;
-
-  if (isLocalMobile) {
-    cardWidth = 120;
-    cardHeight = 80;
-    radius = count > 8 ? 160 : count > 5 ? 130 : count > 3 ? 100 : 80;
-  } else {
-    if (count <= 4) {
-      cardWidth = 210;
-      cardHeight = 140;
-      radius = 180;
-    } else if (count <= 6) {
-      cardWidth = 190;
-      cardHeight = 127;
-      radius = 240;
-    } else {
-      // 7-9 images: slightly more compact width and scientifically optimal radius to fit completely inside container bounds
-      cardWidth = 175;
-      cardHeight = 118;
-      radius = 300;
-    }
-  }
-
-  // Slow continuous auto-rotation when NOT hovered
-  useEffect(() => {
-    if (isHovered || isTransitioning) return;
-    const timer = setInterval(() => {
-      setRotation(r => r + 0.12);
-    }, 30);
-    return () => clearInterval(timer);
-  }, [isHovered, isTransitioning]);
-
-  const handlePrev = () => {
-    setIsTransitioning(true);
-    const step = 360 / count;
-    setRotation(r => {
-      const nearestStep = Math.round(r / step) * step;
-      return nearestStep + step;
-    });
-    setTimeout(() => setIsTransitioning(false), 800);
-  };
-
-  const handleNext = () => {
-    setIsTransitioning(true);
-    const step = 360 / count;
-    setRotation(r => {
-      const nearestStep = Math.round(r / step) * step;
-      return nearestStep - step;
-    });
-    setTimeout(() => setIsTransitioning(false), 800);
-  };
-
-  // Calculate which card index is closest to the front
-  const activeIdx = (Math.round(-rotation / (360 / count)) % count + count) % count;
-
-  return (
-    <div 
-      className="relative w-full h-[230px] sm:h-[340px] flex items-center justify-center overflow-hidden bg-slate-950/20 dark:bg-black/40 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md shadow-inner group"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => {
-        setIsHovered(false);
-        setIsTransitioning(false);
-      }}
-    >
-      <div className="absolute inset-0 bg-gradient-to-t from-purple-500/10 via-transparent to-transparent pointer-events-none rounded-3xl" />
-      
-      <div 
-        style={{
-          width: `${cardWidth}px`,
-          height: `${cardHeight}px`,
-          perspective: isLocalMobile ? '1200px' : '2200px',
-          transformStyle: 'preserve-3d',
-        }}
-        className="relative"
-      >
-        <div
-          className="absolute w-full h-full"
-          style={{
-            transformStyle: 'preserve-3d',
-            transform: `rotateY(${rotation}deg) rotateX(-4deg)`,
-            transition: isTransitioning ? 'transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
-          }}
-        >
-          {photos.map((photo, i) => {
-            const angle = (i * 360) / count;
-            const src = `${folderPath}/photos/${photo}`;
-            const isActiveCard = i === activeIdx;
-
-            // Calculate distance in the circle
-            const diff = Math.min(
-              Math.abs(i - activeIdx),
-              count - Math.abs(i - activeIdx)
-            );
-            const isVisible = diff <= 2;
-
-            // Compute opacity and scale based on distance
-            let opacity = 0;
-            let scale = 1;
-            let zIndex = 0;
-
-            if (diff === 0) {
-              opacity = 1;
-              scale = 1.15;
-              zIndex = 30;
-            } else if (diff === 1) {
-              opacity = 0.75;
-              scale = 0.85;
-              zIndex = 20;
-            } else if (diff === 2) {
-              opacity = 0.25;
-              scale = 0.65;
-              zIndex = 10;
-            } else {
-              opacity = 0;
-              scale = 0.5;
-              zIndex = 0;
-            }
-
-            return (
-              <div
-                key={i}
-                className="absolute inset-0 rounded-xl sm:rounded-2xl overflow-hidden border border-purple-500/25 shadow-[0_0_15px_rgba(168,85,247,0.25)] bg-slate-900 cursor-pointer hover:border-purple-400 transition-all duration-500 group"
-                style={{
-                  transform: `rotateY(${angle}deg) translateZ(${radius}px) scale(${scale})`,
-                  backfaceVisibility: 'hidden',
-                  opacity,
-                  zIndex,
-                  pointerEvents: opacity > 0.1 ? 'auto' : 'none',
-                  willChange: 'transform, opacity',
-                }}
-                onClick={() => {
-                  if (isActiveCard) {
-                    onPhotoClick(src);
-                  } else {
-                    setIsTransitioning(true);
-                    setRotation(-angle);
-                    setTimeout(() => setIsTransitioning(false), 800);
-                  }
-                }}
-              >
-                {isVisible && (
-                  <img 
-                    src={src} 
-                    alt={`Project Detail ${i}`} 
-                    className="w-full h-full object-cover select-none"
-                    style={{
-                      imageRendering: '-webkit-optimize-contrast',
-                      backfaceVisibility: 'hidden',
-                      transform: 'translate3d(0,0,0)',
-                    }}
-                  />
-                )}
-                {isActiveCard && opacity > 0.5 && (
-                  <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.603 10.603z" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-      
-      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
-        <button 
-          onClick={handlePrev}
-          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-xs text-white backdrop-blur-sm transition-colors active:scale-95"
-        >
-          &larr;
-        </button>
-        <button 
-          onClick={handleNext}
-          className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 flex items-center justify-center text-xs text-white backdrop-blur-sm transition-colors active:scale-95"
-        >
-          &rarr;
-        </button>
-      </div>
-    </div>
-  );
-};
-
-
-// 2. Internship Scattered Polaroid Photo Wall
+// 1. Internship Scattered Polaroid Photo Wall
 const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string, onPhotoClick: (src: string) => void }> = ({ photos, folderPath, onPhotoClick }) => {
-  const { i18n } = useTranslation();
-  const lang = i18n.language as 'en' | 'zh';
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   
   const [isLocalMobile, setIsLocalMobile] = useState(window.innerWidth < 640);
@@ -2002,10 +1996,8 @@ const InternshipPolaroidWall: React.FC<{ photos: string[], folderPath: string, o
 };
 
 
-// 3. Volunteer & Exchange 3D Cover Flow Slider
+// 2. Volunteer & Exchange 3D Cover Flow Slider
 const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string, onPhotoClick: (src: string) => void }> = ({ photos, folderPath, onPhotoClick }) => {
-  const { i18n } = useTranslation();
-  const lang = i18n.language as 'en' | 'zh';
   const [activeIndex, setActiveIndex] = useState(0);
   
   const [isLocalMobile, setIsLocalMobile] = useState(window.innerWidth < 640);
@@ -2017,13 +2009,23 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string, onPhotoC
 
   const prev = () => setActiveIndex(i => (i - 1 + photos.length) % photos.length);
   const next = () => setActiveIndex(i => (i + 1) % photos.length);
+  
+  const pointerDownPos = useRef<{ x: number, y: number } | null>(null);
 
   return (
     <div className="relative w-full h-[230px] sm:h-[340px] bg-slate-950/10 dark:bg-black/30 rounded-3xl border border-slate-200/50 dark:border-slate-800/80 backdrop-blur-md overflow-hidden flex items-center justify-center shadow-inner group">
       <div className="absolute inset-0 bg-gradient-to-t from-rose-500/10 via-transparent to-transparent pointer-events-none" />
       
-      <div 
-        className="relative w-full max-w-[420px] h-[115px] sm:h-[170px] flex items-center justify-center"
+      <motion.div 
+        drag="x"
+        dragConstraints={{ left: 0, right: 0 }}
+        dragElastic={0.5}
+        dragMomentum={false}
+        onDragEnd={(_, { offset }) => {
+          if (offset.x < -30) next();
+          else if (offset.x > 30) prev();
+        }}
+        className="relative w-full max-w-[500px] h-[115px] sm:h-[170px] flex items-center justify-center cursor-grab active:cursor-grabbing"
         style={{ perspective: '800px' }}
       >
         {photos.map((photo, i) => {
@@ -2076,7 +2078,17 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string, onPhotoC
                 opacity,
               }}
               transition={{ type: 'spring', stiffness: 180, damping: 20 }}
-              onClick={() => {
+              onPointerDown={(e) => {
+                pointerDownPos.current = { x: e.clientX, y: e.clientY };
+              }}
+              onClick={(e) => {
+                if (pointerDownPos.current) {
+                  const dx = e.clientX - pointerDownPos.current.x;
+                  const dy = e.clientY - pointerDownPos.current.y;
+                  if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                    return; // Ignore click if it was a drag
+                  }
+                }
                 if (isActive) {
                   onPhotoClick(src);
                 } else {
@@ -2084,7 +2096,7 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string, onPhotoC
                 }
               }}
             >
-              <img src={src} alt={`Cover Flow Detail ${i}`} className="w-full h-full object-cover select-none" />
+              <img src={src} alt={`Cover Flow Detail ${i}`} className="w-full h-full object-cover select-none pointer-events-none" draggable={false} />
               {isActive && (
                 <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-slate-950/60 dark:bg-slate-900/80 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shadow-lg opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 pointer-events-none z-10">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor" className="w-3.5 h-3.5 sm:w-4 sm:h-4">
@@ -2095,16 +2107,9 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string, onPhotoC
             </motion.div>
           );
         })}
-      </div>
+      </motion.div>
 
-      <div className="absolute inset-x-4 bottom-3 flex items-center justify-between pointer-events-none">
-        <button 
-          onClick={prev}
-          className="pointer-events-auto w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-800 text-white flex items-center justify-center border border-white/10 hover:border-white/30 text-xs backdrop-blur-sm transition-all active:scale-90"
-        >
-          &larr;
-        </button>
-        
+      <div className="absolute inset-x-0 bottom-3 flex items-center justify-center pointer-events-none">
         <div className="flex gap-1.5">
           {photos.map((_, i) => (
             <span 
@@ -2114,13 +2119,6 @@ const CoverFlowSlider: React.FC<{ photos: string[], folderPath: string, onPhotoC
             />
           ))}
         </div>
-
-        <button 
-          onClick={next}
-          className="pointer-events-auto w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-800 text-white flex items-center justify-center border border-white/10 hover:border-white/30 text-xs backdrop-blur-sm transition-all active:scale-90"
-        >
-          &rarr;
-        </button>
       </div>
     </div>
   );

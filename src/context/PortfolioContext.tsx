@@ -7,6 +7,7 @@ interface PortfolioData {
   settings?: {
     cardSound?: string;
     sectionSound?: string;
+    enableLightRays?: boolean;
   };
   hero: any;
   education: any[];
