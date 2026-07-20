@@ -69,62 +69,62 @@
       "awards": [
         {
           "en": "US Mathematical Contest in Modeling (MCM/ICM) — H Prize (Honorable Mention) (2026/02)",
-          "zh": "美国大学生数学建模竞赛（MCM/ICM）— H奖（团体）(2026/02)",
+          "zh": "美国大学生数学建模竞赛（MCM/ICM）— H奖 (2026/02)",
           "certificate": "26icm.png"
         },
         {
           "en": "China Undergraduate Engineering Practice and Innovation Competition — Second Prize (2025/07)",
-          "zh": "中国大学生工程实践与创新能力大赛 — 二等奖（团体）(2025/07)",
+          "zh": "中国大学生工程实践与创新能力大赛 — 全国二等奖 (2025/07)",
           "certificate": "GC-G.jpg"
         },
         {
           "en": "MathorCup Mathematical Application Challenge — National Second Prize (2026/04)",
-          "zh": "MathorCup数学应用挑战赛 — 全国二等奖（团体）(2026/04)",
-          "certificate": ""
+          "zh": "2026MathorCup数学应用挑战赛 — 全国二等奖 (2026/04)",
+          "certificate": "26MMC.png"
         },
         {
           "en": "China Undergraduate Engineering Practice and Innovation Competition, Beijing Division — First Prize (2025/03)",
-          "zh": "中国大学生工程实践与创新能力大赛北京市选拔赛 — 最高等级（团体）(2025/03)",
+          "zh": "中国大学生工程实践与创新能力大赛北京市选拔赛 — 特等奖 (2025/03)",
           "certificate": "GC.png"
         },
         {
-          "en": "National Undergraduate Market Research and Analysis Competition, Beijing Division — Third Prize (2025/04)",
-          "zh": "全国大学生市场调查与分析大赛北京分赛区选拔赛 — 第三等级（团体）(2025/04)",
+          "en": "National Undergraduate Market Research and Analysis Competition, Beijing Division — Special Prize (2025/04)",
+          "zh": "全国大学生市场调查与分析大赛北京分赛区选拔赛 — 三等奖 (2025/04)",
           "certificate": "市场调查.PNG"
         },
         {
           "en": "US Mathematical Contest in Modeling (MCM/ICM) — S Prize (Honorable Mention) (2025/01)",
-          "zh": "美国大学生数学建模竞赛（MCM/ICM）— S奖（团体）(2025/01)",
+          "zh": "美国大学生数学建模竞赛（MCM/ICM）— S奖 (2025/01)",
           "certificate": "25icm.png"
         },
         {
           "en": "Beijing Municipal Undergraduate Mathematics Competition — Third Prize, Individual (2024/11)",
-          "zh": "北京市大学生数学竞赛 — 第三等级（个人）(2024/11)",
+          "zh": "北京市大学生数学竞赛 — 三等奖（个人）(2024/11)",
           "certificate": "SJ.png"
         },
         {
           "en": "MathorCup Mathematical Application Challenge (North China Region) — Third Prize (2025/04)",
-          "zh": "MathorCup数学应用挑战赛（华北赛区）— 第三等级（团体）(2025/04)",
+          "zh": "MathorCup数学应用挑战赛（华北赛区）—三等奖 (2025/04)",
           "certificate": "25MMC.png"
         },
         {
           "en": "NCUT Market Research and Analysis Competition — Second Runner-up (2025/03)",
-          "zh": "北方工业大学市场调查与分析大赛 — 次高等级（团体）(2025/03)",
+          "zh": "北方工业大学市场调查与分析大赛 — 二等奖 (2025/03)",
           "certificate": ""
         },
         {
           "en": "National Undergraduate Basic Engineering Training Comprehensive Ability Competition (School Level) — First Prize (2024/10)",
-          "zh": "大学生基础工程训练综合能力竞赛校内选拔赛 — 最高等级（团体）(2024/10)",
+          "zh": "大学生基础工程训练综合能力竞赛校内选拔赛 — 一等奖 (2024/10)",
           "certificate": ""
         },
         {
-          "en": "DatangCup National Undergraduate Mobile Communications Competition — Participation Award (2024/04)",
-          "zh": "西门子杯校赛 — 二等奖（团体）(2024/04)",
+          "en": "Siemens Cup School Competition — Second Prize (2024/04)",
+          "zh": "西门子杯校赛 — 二等奖 (2024/04)",
           "certificate": "XMZ.png"
         },
         {
           "en": "NCUT London Brunel Institute Career Planning Competition — Third Prize (2023/12)",
-          "zh": "北方工业大学伦敦布鲁内尔学院职业规划大赛 — 三等奖（团体）(2023/12)",
+          "zh": "北方工业大学伦敦布鲁内尔学院职业规划大赛 — 三等奖（个人）(2023/12)",
           "certificate": "ZYGH.png"
         },
         {
@@ -133,8 +133,8 @@
           "certificate": ""
         },
         {
-          "en": "Siemens Cup School Competition — Second Prize (2024/04)",
-          "zh": "大唐杯全国大学生移动通信大赛 — 参与奖（团体）(2024/04)",
+          "en": "DatangCup National Undergraduate Mobile Communications Competition — Participation Award (2024/04)DatangCup National Undergraduate Mobile Communications Competition — Participation Award (2024/04)",
+          "zh": "大唐杯全国大学生移动通信大赛 — 参与奖 (2024/04)",
           "certificate": ""
         }
       ],
@@ -147,6 +147,7 @@
         "25icm.png",
         "25MMC.png",
         "26icm.png",
+        "26MMC.png",
         "GC-G.jpg",
         "GC.png",
         "SJ.png",
@@ -210,9 +211,7 @@
         ]
       },
       "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
+        "RAG.jpg"
       ],
       "certificates": [
         "Snipaste_2026-05-18_18-53-58.png",
@@ -269,11 +268,7 @@
           "业务理解与报告输出：结合业务场景解释模型结果，输出结构化分析报告与可视化结论。"
         ]
       },
-      "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
-      ],
+      "photos": [],
       "certificates": [
         "拓尔思实习证明.JPG"
       ],
@@ -281,57 +276,6 @@
     }
   ],
   "projects": [
-    {
-      "id": "hyperlipidemia-risk-warning-and-intervention-system-based-on-lasso-shap-and-dynamic-programming",
-      "name": {
-        "en": "Hyperlipidemia Risk Warning and Intervention System Based on LASSO-SHAP and Dynamic Programming",
-        "zh": "基于 LASSO-SHAP 与动态规划的高血脂症风险预警及干预系统"
-      },
-      "role": {
-        "en": "Team Leader / Core Algorithm Engineer",
-        "zh": "项目队长 / 核心算法工程师"
-      },
-      "period": "2026.04 - 2026.04",
-      "location": {
-        "en": "Beijing, China",
-        "zh": "北京, 中国"
-      },
-      "details": {
-        "en": [
-          "Problem C of the 2026 MathorCup, winning the national Second Prize.",
-          "Responsible for core algorithm design and Python implementation, combining machine learning and operations research.",
-          "Constructed a dual-task feature engineering scheme (LASSO + tree models) with SHAP value explanation, Platt probability calibration, and CART decision rules.",
-          "Developed a finite-horizon dynamic programming model with lexicographical multi-objective optimization to solve for monthly custom 6-month patient intervention paths."
-        ],
-        "zh": [
-          "2026年第十六届 MathorCup 数学应用挑战赛C题，荣获全国二等奖。",
-          "负责核心算法设计与 Python 代码实现，融合机器学习集成算法与运筹优化算法。",
-          "构建了基于 LASSO-SHAP 的双任务特征工程，通过 Platt 缩放概率校准与 CART 决策树提取高危规则。",
-          "设计了以月为步长的有限时域动态规划（DP）干预优化模型，并结合字典序多目标优化为患者定制 6 个月最优干预清单。"
-        ]
-      },
-      "keywords": {
-        "en": [
-          "Python",
-          "LASSO-SHAP",
-          "Ensemble Learning",
-          "Explainable AI",
-          "Dynamic Programming",
-          "Multi-Objective Optimization"
-        ],
-        "zh": [
-          "Python",
-          "LASSO-SHAP",
-          "集成学习",
-          "可解释性AI",
-          "动态规划",
-          "多目标优化"
-        ]
-      },
-      "photos": [],
-      "certificates": [],
-      "hasMarkdown": true
-    },
     {
       "id": "integrated-sports-finance-dynamic-decision-system-for-the-golden-state-warriors",
       "name": {
@@ -379,9 +323,135 @@
           "数据可视化"
         ]
       },
-      "photos": [],
+      "photos": [
+        "1.jpg",
+        "2.jpg",
+        "3.jpg",
+        "4.jpg",
+        "5.jpg",
+        "6.jpg",
+        "7.jpg"
+      ],
       "certificates": [
         "MCM26.png"
+      ],
+      "hasMarkdown": true
+    },
+    {
+      "id": "smart-sorting-trash-can-based-on-yolo",
+      "name": {
+        "en": "Smart Sorting Trash Can Based on YOLO",
+        "zh": "基于 YOLO 的智能分类垃圾桶"
+      },
+      "role": {
+        "en": "Project Leader",
+        "zh": "项目组长"
+      },
+      "period": "2024.11 - 2025.01",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "Program Dev: Led the programming of electromechanical control and auto-sorting based on YOLOv8 vision recognition.",
+          "Hardware Collaboration: Worked closely with mechanical team to ensure perfect combination of appearance and function.",
+          "Achievements: Won Special Prize in Beijing Undergraduate Engineering Practice and Innovation Competition, and National Second Prize."
+        ],
+        "zh": [
+          "程序开发：主导编写机械电控与分拣程序，实现舵机精准控制与垃圾桶自动分类，并完善满载检测功能与视觉识别系统，确保 YOLOv8 模型识别准确率和稳定性。",
+          "硬件协作：与机械团队密切合作，共同设计垃圾桶外观，确保外观与功能的完美结合，并建立独立分拣机构。",
+          "项目成果：项目荣获北京市大学生工程实践与创新能力大赛特等奖，并被推荐进入中国大学生工程实践与创新能力大赛并获得全国二等奖。"
+        ]
+      },
+      "keywords": {
+        "en": [
+          "YOLOv8",
+          "Arduino",
+          "Electromechanical",
+          "Vision Recognition"
+        ],
+        "zh": [
+          "YOLOv8",
+          "Arduino",
+          "机电控制",
+          "视觉识别"
+        ]
+      },
+      "photos": [
+        "0ac215e86965f3489dadaceb0317981e.jpg",
+        "c77bbf3d07b780dbcb08d7b5a2e2c5b6.jpg",
+        "ce0496319deee610b66168b8ac0280f3.jpg",
+        "cfca6c26bf4a5e4f6a954266641847a3.jpg",
+        "ecf3cc507f64f02c6378d77eb80e0a1c.jpg",
+        "Snipaste_2026-05-18_18-30-21.png",
+        "Snipaste_2026-05-18_18-30-44.png"
+      ],
+      "certificates": [
+        "6e7c4d4be071081d76ebc2e81abc3e5b.jpg",
+        "a712a43036b6e81f9cb0ca565646f7c3.jpg"
+      ],
+      "hasMarkdown": true
+    },
+    {
+      "id": "hyperlipidemia-risk-warning-and-intervention-system-based-on-lasso-shap-and-dynamic-programming",
+      "name": {
+        "en": "Hyperlipidemia Risk Warning and Intervention System Based on LASSO-SHAP and Dynamic Programming",
+        "zh": "基于 LASSO-SHAP 与动态规划的高血脂症风险预警及干预系统"
+      },
+      "role": {
+        "en": "Team Leader / Core Algorithm Engineer",
+        "zh": "项目队长 / 核心算法工程师"
+      },
+      "period": "2026.04 - 2026.04",
+      "location": {
+        "en": "Beijing, China",
+        "zh": "北京, 中国"
+      },
+      "details": {
+        "en": [
+          "Problem C of the 2026 MathorCup, winning the national Second Prize.",
+          "Responsible for core algorithm design and Python implementation, combining machine learning and operations research.",
+          "Constructed a dual-task feature engineering scheme (LASSO + tree models) with SHAP value explanation, Platt probability calibration, and CART decision rules.",
+          "Developed a finite-horizon dynamic programming model with lexicographical multi-objective optimization to solve for monthly custom 6-month patient intervention paths."
+        ],
+        "zh": [
+          "2026年第十六届 MathorCup 数学应用挑战赛C题，荣获全国二等奖。",
+          "负责核心算法设计与 Python 代码实现，融合机器学习集成算法与运筹优化算法。",
+          "构建了基于 LASSO-SHAP 的双任务特征工程，通过 Platt 缩放概率校准与 CART 决策树提取高危规则。",
+          "设计了以月为步长的有限时域动态规划（DP）干预优化模型，并结合字典序多目标优化为患者定制 6 个月最优干预清单。"
+        ]
+      },
+      "keywords": {
+        "en": [
+          "Python",
+          "LASSO-SHAP",
+          "Ensemble Learning",
+          "Explainable AI",
+          "Dynamic Programming",
+          "Multi-Objective Optimization"
+        ],
+        "zh": [
+          "Python",
+          "LASSO-SHAP",
+          "集成学习",
+          "可解释性AI",
+          "动态规划",
+          "多目标优化"
+        ]
+      },
+      "photos": [
+        "1.jpg",
+        "2.jpg",
+        "3.jpg",
+        "4.jpg",
+        "5.jpg",
+        "6.jpg",
+        "7.jpg",
+        "8.jpg"
+      ],
+      "certificates": [
+        "26MMC.png"
       ],
       "hasMarkdown": true
     },
@@ -489,68 +559,18 @@
         ]
       },
       "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
+        "F1.png",
+        "F2.png",
+        "F3.png",
+        "F4.png",
+        "F5.png",
+        "F6.png",
+        "F7.png",
+        "F8.png",
+        "F9.png"
       ],
       "certificates": [
         "66c1b3de9691c2125f2225a66c5eb1df.jpg"
-      ],
-      "hasMarkdown": true
-    },
-    {
-      "id": "smart-sorting-trash-can-based-on-yolo",
-      "name": {
-        "en": "Smart Sorting Trash Can Based on YOLO",
-        "zh": "基于 YOLO 的智能分类垃圾桶"
-      },
-      "role": {
-        "en": "Project Leader",
-        "zh": "项目组长"
-      },
-      "period": "2024.11 - 2025.01",
-      "location": {
-        "en": "Beijing, China",
-        "zh": "北京, 中国"
-      },
-      "details": {
-        "en": [
-          "Program Dev: Led the programming of electromechanical control and auto-sorting based on YOLOv8 vision recognition.",
-          "Hardware Collaboration: Worked closely with mechanical team to ensure perfect combination of appearance and function.",
-          "Achievements: Won Special Prize in Beijing Undergraduate Engineering Practice and Innovation Competition, and National Second Prize."
-        ],
-        "zh": [
-          "程序开发：主导编写机械电控与分拣程序，实现舵机精准控制与垃圾桶自动分类，并完善满载检测功能与视觉识别系统，确保 YOLOv8 模型识别准确率和稳定性。",
-          "硬件协作：与机械团队密切合作，共同设计垃圾桶外观，确保外观与功能的完美结合，并建立独立分拣机构。",
-          "项目成果：项目荣获北京市大学生工程实践与创新能力大赛特等奖，并被推荐进入中国大学生工程实践与创新能力大赛并获得全国二等奖。"
-        ]
-      },
-      "keywords": {
-        "en": [
-          "YOLOv8",
-          "Arduino",
-          "Electromechanical",
-          "Vision Recognition"
-        ],
-        "zh": [
-          "YOLOv8",
-          "Arduino",
-          "机电控制",
-          "视觉识别"
-        ]
-      },
-      "photos": [
-        "0ac215e86965f3489dadaceb0317981e.jpg",
-        "c77bbf3d07b780dbcb08d7b5a2e2c5b6.jpg",
-        "ce0496319deee610b66168b8ac0280f3.jpg",
-        "cfca6c26bf4a5e4f6a954266641847a3.jpg",
-        "ecf3cc507f64f02c6378d77eb80e0a1c.jpg",
-        "Snipaste_2026-05-18_18-30-21.png",
-        "Snipaste_2026-05-18_18-30-44.png"
-      ],
-      "certificates": [
-        "6e7c4d4be071081d76ebc2e81abc3e5b.jpg",
-        "a712a43036b6e81f9cb0ca565646f7c3.jpg"
       ],
       "hasMarkdown": true
     },
@@ -598,54 +618,17 @@
         ]
       },
       "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
+        "05347d8f0f2c1ee99d3a1a4d63b0a4c7.jpg",
+        "1c483c45a1796b064bf115387734f600.jpg",
+        "1c7f69d465bc1f60450a45ef20cf38eb.jpg",
+        "1dad8ca60e2583f60412847a6a21729d.jpg",
+        "88b99b6f0e3718a5914b01e3d3cbde7d.jpg",
+        "91d0f7e2dde81b3e8aec99cc694e7c29.jpg",
+        "f40ab4bd4096f88f21cd623ca5171092.jpg"
       ],
-      "certificates": [],
-      "hasMarkdown": true
-    },
-    {
-      "name": {
-        "en": "Equatorial Mount Model Design",
-        "zh": "赤道仪"
-      },
-      "role": {
-        "en": "External Assistant",
-        "zh": "外援"
-      },
-      "period": "2024.05 - 2025.06",
-      "location": {
-        "en": "North China University of Technology",
-        "zh": "北方工业大学"
-      },
-      "details": {
-        "en": [
-          "Drew part drawings and engineering drawings for the equatorial mount model."
-        ],
-        "zh": [
-          "绘制赤道仪模型的零件图，工程图"
-        ]
-      },
-      "id": "equatorial-mount-model-design",
-      "keywords": {
-        "en": [
-          "3D Modeling",
-          "Engineering Drawing",
-          "Parts Design"
-        ],
-        "zh": [
-          "3D建模",
-          "工程制图",
-          "零件设计"
-        ]
-      },
-      "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
+      "certificates": [
+        "bad3d1d16473f9f1e3fe096491aa1525.jpg"
       ],
-      "certificates": [],
       "hasMarkdown": true
     },
     {
@@ -688,13 +671,73 @@
         ]
       },
       "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
+        "图片1.jpg",
+        "图片10.png",
+        "图片11.png",
+        "图片12.png",
+        "图片13.png",
+        "图片14.png",
+        "图片15.png",
+        "图片2.png",
+        "图片3.png",
+        "图片4.jpg",
+        "图片5.png",
+        "图片6.png",
+        "图片7.png",
+        "图片8.png",
+        "图片9.png"
       ],
       "certificates": [
         "市场调查.PNG"
       ],
+      "hasMarkdown": true
+    },
+    {
+      "name": {
+        "en": "Equatorial Mount Model Design",
+        "zh": "赤道仪"
+      },
+      "role": {
+        "en": "External Assistant",
+        "zh": "外援"
+      },
+      "period": "2024.05 - 2025.06",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "Drew part drawings and engineering drawings for the equatorial mount model."
+        ],
+        "zh": [
+          "绘制赤道仪模型的零件图，工程图"
+        ]
+      },
+      "id": "equatorial-mount-model-design",
+      "keywords": {
+        "en": [
+          "3D Modeling",
+          "Engineering Drawing",
+          "Parts Design"
+        ],
+        "zh": [
+          "3D建模",
+          "工程制图",
+          "零件设计"
+        ]
+      },
+      "photos": [
+        "01028a7b492d5eafb6194668b727cf9d.jpg",
+        "46477a936931497908759af0e42b9997.jpg",
+        "58477261dfc1ad803a4f7f63ea29489d.jpg",
+        "699f7fb1edff7ffb8f2b116d8da8d95e.jpg",
+        "a5d0aa450bc756244e3457e27628efc9.jpg",
+        "ae6d2deec3231acde5ee2a195bbc8b74.jpg",
+        "eed94cc0fb48e96465e80caaf42db759.jpg",
+        "f56852afa0149ea3297147890303a8e5.jpg"
+      ],
+      "certificates": [],
       "hasMarkdown": true
     },
     {
@@ -760,6 +803,96 @@
     },
     {
       "name": {
+        "en": "Arduino-based Smart Car",
+        "zh": "基于Arduino的智能小车"
+      },
+      "role": {
+        "en": "Team Leader",
+        "zh": "组长"
+      },
+      "period": "2023.09 - 2023.12",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "Built a smart car based on Arduino.",
+          "Implemented line-tracking, obstacle avoidance, and remote control functions."
+        ],
+        "zh": [
+          "基于Arduino构建智能小车",
+          "实现循迹和避障功能",
+          "以及遥控功能"
+        ]
+      },
+      "id": "arduino-based-smart-car",
+      "keywords": {
+        "en": [
+          "Arduino",
+          "Line-tracking",
+          "Obstacle Avoidance",
+          "Remote Control"
+        ],
+        "zh": [
+          "Arduino",
+          "循迹",
+          "避障",
+          "遥控"
+        ]
+      },
+      "photos": [],
+      "certificates": [
+        "Arduino.png"
+      ],
+      "hasMarkdown": true
+    },
+    {
+      "name": {
+        "en": "Intelligent Badminton Robot",
+        "zh": "智能羽毛球机器人"
+      },
+      "role": {
+        "en": "Team Leader",
+        "zh": "组长"
+      },
+      "period": "2024.04 - 2024.04",
+      "location": {
+        "en": "North China University of Technology",
+        "zh": "北方工业大学"
+      },
+      "details": {
+        "en": [
+          "Drew 3D models of the badminton robot, conceptualized the mechanisms of various parts, and outlined the selection of hardware and algorithms.",
+          "Participated independently during freshman year, but due to limited knowledge and the massive scope of the project, it remained at the software conceptualization stage without a physical output."
+        ],
+        "zh": [
+          "绘制羽毛球机器人的3D模型，构思羽毛球各部位机构，以及硬件的选择和算法的选择思路",
+          "大一下独立参赛，但由于知识量过少，以及项目体系过大难以实现",
+          "只停留在软件构思层面，没有实物产出"
+        ]
+      },
+      "id": "intelligent-badminton-robot",
+      "keywords": {
+        "en": [
+          "3D Modeling",
+          "Hardware Selection",
+          "Mechanism Design"
+        ],
+        "zh": [
+          "3D建模",
+          "硬件选型",
+          "机构设计"
+        ]
+      },
+      "photos": [],
+      "certificates": [
+        "XMZ.png"
+      ],
+      "hasMarkdown": true
+    },
+    {
+      "name": {
         "en": "HarmonyOS-based Personal Blog Software",
         "zh": "基于鸿蒙的个人博客软件开发"
       },
@@ -805,11 +938,7 @@
           "后端开发"
         ]
       },
-      "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
-      ],
+      "photos": [],
       "certificates": [],
       "hasMarkdown": true
     },
@@ -860,110 +989,8 @@
           "后端开发"
         ]
       },
-      "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
-      ],
+      "photos": [],
       "certificates": [],
-      "hasMarkdown": true
-    },
-    {
-      "name": {
-        "en": "Intelligent Badminton Robot",
-        "zh": "智能羽毛球机器人"
-      },
-      "role": {
-        "en": "Team Leader",
-        "zh": "组长"
-      },
-      "period": "2024.04 - 2024.04",
-      "location": {
-        "en": "North China University of Technology",
-        "zh": "北方工业大学"
-      },
-      "details": {
-        "en": [
-          "Drew 3D models of the badminton robot, conceptualized the mechanisms of various parts, and outlined the selection of hardware and algorithms.",
-          "Participated independently during freshman year, but due to limited knowledge and the massive scope of the project, it remained at the software conceptualization stage without a physical output."
-        ],
-        "zh": [
-          "绘制羽毛球机器人的3D模型，构思羽毛球各部位机构，以及硬件的选择和算法的选择思路",
-          "大一下独立参赛，但由于知识量过少，以及项目体系过大难以实现",
-          "只停留在软件构思层面，没有实物产出"
-        ]
-      },
-      "id": "intelligent-badminton-robot",
-      "keywords": {
-        "en": [
-          "3D Modeling",
-          "Hardware Selection",
-          "Mechanism Design"
-        ],
-        "zh": [
-          "3D建模",
-          "硬件选型",
-          "机构设计"
-        ]
-      },
-      "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
-      ],
-      "certificates": [
-        "XMZ.png"
-      ],
-      "hasMarkdown": true
-    },
-    {
-      "name": {
-        "en": "Arduino-based Smart Car",
-        "zh": "基于Arduino的智能小车"
-      },
-      "role": {
-        "en": "Team Leader",
-        "zh": "组长"
-      },
-      "period": "2023.09 - 2023.12",
-      "location": {
-        "en": "North China University of Technology",
-        "zh": "北方工业大学"
-      },
-      "details": {
-        "en": [
-          "Built a smart car based on Arduino.",
-          "Implemented line-tracking, obstacle avoidance, and remote control functions."
-        ],
-        "zh": [
-          "基于Arduino构建智能小车",
-          "实现循迹和避障功能",
-          "以及遥控功能"
-        ]
-      },
-      "id": "arduino-based-smart-car",
-      "keywords": {
-        "en": [
-          "Arduino",
-          "Line-tracking",
-          "Obstacle Avoidance",
-          "Remote Control"
-        ],
-        "zh": [
-          "Arduino",
-          "循迹",
-          "避障",
-          "遥控"
-        ]
-      },
-      "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
-      ],
-      "certificates": [
-        "Arduino.png"
-      ],
       "hasMarkdown": true
     }
   ],
@@ -1098,11 +1125,17 @@
         ]
       },
       "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
+        "05347d8f0f2c1ee99d3a1a4d63b0a4c7.jpg",
+        "1c483c45a1796b064bf115387734f600.jpg",
+        "1c7f69d465bc1f60450a45ef20cf38eb.jpg",
+        "1dad8ca60e2583f60412847a6a21729d.jpg",
+        "88b99b6f0e3718a5914b01e3d3cbde7d.jpg",
+        "91d0f7e2dde81b3e8aec99cc694e7c29.jpg",
+        "f40ab4bd4096f88f21cd623ca5171092.jpg"
       ],
-      "certificates": [],
+      "certificates": [
+        "bad3d1d16473f9f1e3fe096491aa1525.jpg"
+      ],
       "hasMarkdown": true
     },
     {
@@ -1168,9 +1201,10 @@
       },
       "id": "community-garbage-classification-volunteer",
       "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
+        "1bc91fed26982ed4bdcd113f5319f918.jpg",
+        "532632dfc6fdb39a71d30375654fa9c5.jpg",
+        "5dcc50da9851d799a678e6e13ef403f4.jpg",
+        "c13975612a75c32f9f7e76f9f462a3c9.jpg"
       ],
       "certificates": [],
       "hasMarkdown": true
@@ -1199,9 +1233,7 @@
       },
       "id": "earth-day-volunteer-activity",
       "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
+        "2ada3960f52cbf644e5372e8f0eb5762.jpg"
       ],
       "certificates": [],
       "hasMarkdown": true
@@ -1230,9 +1262,10 @@
       },
       "id": "beijing-marathon-volunteer",
       "photos": [
-        "mock-preview-01.svg",
-        "mock-preview-02.svg",
-        "mock-preview-03.svg"
+        "624e96afc46df2cb3997e980d1e3b2ef.jpg",
+        "73f9e9da7e8f6bcd987e9012d9e1db13.jpg",
+        "f67a192d678d144e1bdd34bff03402e3.jpg",
+        "feea54547f828c3e2b417506778fec4d.jpg"
       ],
       "certificates": [
         "cert.png"
